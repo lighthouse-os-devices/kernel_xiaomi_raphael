@@ -229,6 +229,7 @@
 		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
 
 		qcom,dsi-panel = <&dsi_sharp_4k_dsc_video>;
+		qcom,ulps-enabled;
 	};
 
 	dsi_sharp_4k_dsc_cmd_display: qcom,dsi-display@1 {
@@ -240,6 +241,7 @@
 		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
 
 		qcom,dsi-panel = <&dsi_sharp_4k_dsc_cmd>;
+		qcom,ulps-enabled;
 	};
 
 	dsi_sharp_1080_cmd_display: qcom,dsi-display@2 {
@@ -251,6 +253,7 @@
 		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
 
 		qcom,dsi-panel = <&dsi_sharp_1080_cmd>;
+		qcom,ulps-enabled;
 	};
 
 	dsi_dual_sharp_1080_120hz_cmd_display: qcom,dsi-display@3 {
@@ -520,6 +523,7 @@
 		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
 
 		qcom,dsi-panel = <&dsi_samsung_fhd_ea8076_f1_cmd>;
+		qcom,ulps-enabled;
 	};
 
 	dsi_samsung_fhd_ea8076_f1mp_cmd_display: qcom,dsi-display@27 {
@@ -531,6 +535,7 @@
 		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
 
 		qcom,dsi-panel = <&dsi_samsung_fhd_ea8076_f1mp_cmd>;
+		qcom,ulps-enabled;
 	};
 
 	dsi_samsung_fhd_ea8076_f1p2_2_cmd_display: qcom,dsi-display@28 {
@@ -542,6 +547,7 @@
 		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
 
 		qcom,dsi-panel = <&dsi_samsung_fhd_ea8076_f1p2_2_cmd>;
+		qcom,ulps-enabled;
 	};
 
 	dsi_samsung_fhd_ea8076_f1p2_cmd_display: qcom,dsi-display@29 {
@@ -553,6 +559,7 @@
 		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
 
 		qcom,dsi-panel = <&dsi_samsung_fhd_ea8076_f1p2_cmd>;
+		qcom,ulps-enabled;
 	};
 
 	dsi_samsung_fhd_ea8076_f1s_cmd_display: qcom,dsi-display@30 {
@@ -564,6 +571,7 @@
 		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
 
 		qcom,dsi-panel = <&dsi_samsung_fhd_ea8076_f1s_cmd>;
+		qcom,ulps-enabled;
 	};
 
 	dsi_samsung_fhd_ea8076_cmd_display: qcom,dsi-display@31 {
@@ -575,6 +583,7 @@
 		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
 
 		qcom,dsi-panel = <&dsi_samsung_fhd_ea8076_cmd>;
+		qcom,ulps-enabled;
 	};
 
 	sde_dsi: qcom,dsi-display-primary {
