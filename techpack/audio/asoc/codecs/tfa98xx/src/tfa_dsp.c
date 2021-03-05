@@ -3844,8 +3844,9 @@ enum tfa_error tfa_dev_set_state(struct tfa_device *tfa, enum tfa_state state, i
 		break;
 	case TFA_STATE_INIT_CF:      /* coolflux HW access possible (~initcf) */
 								 /* Start with SBSL=0 to stay in initCF state */
-		if (!tfa->is_probus_device)
-			TFA_SET_BF(tfa, SBSL, 0);
+	if(!tfa->is_probus_device){
+		TFA_SET_BF(tfa, SBSL, 0);
+	}
 
 		/* We want to leave Wait4SrcSettings state for max2 */
 		if (tfa->tfa_family == 2)
@@ -3880,11 +3881,11 @@ enum tfa_error tfa_dev_set_state(struct tfa_device *tfa, enum tfa_state state, i
 		TFA_SET_BF(tfa, MANSCONF, 1);	/* Coming from state 1 */
 		pr_debug("tfa->is_probus_device=%d    is_calibration=%d\n", tfa->is_probus_device, is_calibration);
 		/* we should set AMPE as 1 for NON-DSP device, otherwise will be setting SBSL as 1 */
-		if (tfa->is_probus_device) {
-			TFA_SET_BF(tfa, AMPE, 1);	/* Coming from state 6 */
-		} else {
-			TFA_SET_BF(tfa, SBSL, 1);	/* Coming from state 6 */
-		}
+	if (tfa->is_probus_device) {
+		TFA_SET_BF(tfa, AMPE, 1);	/* Coming from state 6 */
+	} else {
+		TFA_SET_BF(tfa, SBSL, 1);	/* Coming from state 6 */
+	}
 
 		/*
 		 * Disable MTP clock to protect memory.
