@@ -2515,13 +2515,13 @@ static int __cam_isp_ctx_flush_req_in_top_state(
 	rc = __cam_isp_ctx_flush_req(ctx, &ctx->pending_req_list, flush_req);
 
 	if (!list_empty(&ctx->active_req_list)) {
-		CAM_INFO_RATE_LIMIT_CUSTOM(CAM_ISP, 5, 20,
+		CAM_INFO_RATE_LIMIT(CAM_ISP, 5, 20,
 			"ctx:%d last applied id:%lld, reported req id:%lld, buf done id:%lld",
 			ctx->ctx_id,
 			ctx_isp->req_info.last_applied_req_id,
 			ctx_isp->req_info.reported_req_id,
 			ctx_isp->req_info.last_bufdone_req_id);
-		CAM_INFO_RATE_LIMIT_CUSTOM(CAM_ISP, 5, 20,
+		CAM_INFO_RATE_LIMIT(CAM_ISP, 5, 20,
 			"current time:%lld last apply time:%lld, reported req time:%lld, buf done time:%lld",
 			jiffies_to_msecs(jiffies),
 			ctx_isp->req_info.last_applied_time_stamp,
