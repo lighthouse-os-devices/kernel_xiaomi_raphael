@@ -133,3 +133,7 @@ Android.bp
 
 # Object directory
 out/
+logs/
+scripts/ufdt/
+AnyKernel3/
+clang/
