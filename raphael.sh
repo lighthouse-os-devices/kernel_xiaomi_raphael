@@ -50,7 +50,10 @@ MANUFACTURERINFO="Xiaomi"
 
 # Specify compiler. 
 # 'clang' or 'gcc'
-COMPILER=clang
+COMPILER=gcc
+
+# Kernel is LTO
+LTO=1
 
 # Clean source prior building. 1 is NO(default) | 0 is YES
 INCREMENTAL=1
@@ -132,6 +135,11 @@ exports() {
 		PATH=$GCC64_DIR/bin/:$GCC32_DIR/bin/:/usr/bin:$PATH
 	fi
 
+	if [ $LTO = "1" ];then
+		export LD=ld.lld
+        export LD_LIBRARY_PATH=$TC_DIR/lib
+	fi
+
 	export PATH KBUILD_COMPILER_STRING
 	PROCS=$(nproc --all)
 	export PROCS
@@ -142,7 +150,7 @@ exports() {
 # Function to replace defconfig versioning
 setversioning() {
     # For staging branchc
-    KERNELNAME="Test-$DATE"
+    KERNELNAME="Lighthouse-smooth-$DATE"
     # Export our new localversion and zipnames
     export KERNELNAME
     export ZIPNAME="$KERNELNAME.zip"
