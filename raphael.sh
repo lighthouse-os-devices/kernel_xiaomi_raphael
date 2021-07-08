@@ -26,6 +26,7 @@ msg() {
 
 err() {
     echo -e "\e[1;41m$*\e[0m"
+    exit 1
 }
 
 ##------------------------------------------------------##
@@ -35,7 +36,7 @@ err() {
 KERNEL_DIR=$PWD
 
 # The name of the device for which the kernel is built
-MODEL="THE GOD"
+MODEL="Redmi K20 Pro"
 
 # The codename of the device
 DEVICE="raphael"
@@ -45,19 +46,11 @@ DEVICE="raphael"
 DEFCONFIG=raphael_defconfig
 
 # Show manufacturer info
-MANUFACTURERINFO="Xiaomeme"
+MANUFACTURERINFO="Xiaomi"
 
-# Specify compiler.
-# 'clang' or 'clangxgcc' or 'gcc'
-COMPILER=gcc
-	if [ $COMPILER = "clang" ] || [ $COMPILER = "clangxgcc" ]
-	then
-		# install few necessary packages
-		sudo apt-get -y install gcc llvm lld g++-multilib clang
-	fi
-
-# Kernel is LTO
-LTO=1
+# Specify compiler. 
+# 'clang' or 'gcc'
+COMPILER=clang
 
 # Clean source prior building. 1 is NO(default) | 0 is YES
 INCREMENTAL=1
@@ -72,15 +65,6 @@ BUILD_DTBO=1
 # Sign the zipfile
 # 1 is YES | 0 is NO
 SIGN=0
-	if [ $SIGN = 1 ]
-	then
-		#Check for java
-		if command -v java > /dev/null 2>&1; then
-			SIGN=1
-		else
-			SIGN=0
-		fi
-	fi
 
 # Debug purpose. Send logs on every successfull builds
 # 1 is YES | 0 is NO(default)
@@ -93,13 +77,13 @@ LOG_DEBUG=0
 # set KBUILD_BUILD_VERSION and KBUILD_BUILD_HOST and CI_BRANCH
 
 #Check Kernel Version
-LINUXVER=$(make kernelversion)
+KERVER=$(make kernelversion)
 
 # Set a commit head
 COMMIT_HEAD=$(git log --oneline -1)
 
-# Set Date
-DATE=$(TZ=Asia/Kolkata date +"%Y-%m-%d")
+# Set Date 
+DATE=$(TZ=Asia/Kolkata date +"%Y%m%d")
 
 #Now Its time for other stuffs like cloning, exporting, etc
 
@@ -110,30 +94,19 @@ DATE=$(TZ=Asia/Kolkata date +"%Y-%m-%d")
 		msg "|| Cloning toolchain ||"
 		git clone --depth=1 https://github.com/kdrag0n/proton-clang clang
 
+		# Toolchain Directory defaults to clang-llvm
+		TC_DIR=$KERNEL_DIR/clang
 	elif [ $COMPILER = "gcc" ]
 	then
 		msg "|| Cloning GCC ||"
 		git clone https://github.com/mvaisakh/gcc-arm64.git gcc64 --depth=1
-                git clone https://github.com/mvaisakh/gcc-arm.git gcc32 --depth=1
-	elif [ $COMPILER = "clangxgcc" ]
-	then
-		msg "|| Cloning toolchain ||"
-		git clone --depth=1 https://github.com/kdrag0n/proton-clang -b master clang
-
-		msg "|| Cloning GCC ||"
-		git clone https://github.com/mvaisakh/gcc-arm64.git gcc64 --depth=1
-		git clone https://github.com/mvaisakh/gcc-arm.git gcc32 --depth=1
-	fi
-
-	# Toolchain Directory defaults to clang-llvm
-		TC_DIR=$KERNEL_DIR/clang
-
-	# GCC Directory
+        git clone https://github.com/mvaisakh/gcc-arm.git gcc32 --depth=1
 		GCC64_DIR=$KERNEL_DIR/gcc64
 		GCC32_DIR=$KERNEL_DIR/gcc32
+	fi
 
 	msg "|| Cloning Anykernel ||"
-        git clone https://github.com/CannedShroud/AnyKernel3 -b raphael
+        git clone https://github.com/CannedShroud/AnyKernel3.git -b main
 
 	if [ $BUILD_DTBO = 1 ]
 	then
@@ -153,19 +126,10 @@ exports() {
 	then
 		KBUILD_COMPILER_STRING=$("$TC_DIR"/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
 		PATH=$TC_DIR/bin/:$PATH
-	elif [ $COMPILER = "clangxgcc" ]
-	then
-		KBUILD_COMPILER_STRING=$("$TC_DIR"/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
-		PATH=$TC_DIR/bin:$GCC64_DIR/bin:$GCC32_DIR/bin:/usr/bin:$PATH
 	elif [ $COMPILER = "gcc" ]
 	then
 		KBUILD_COMPILER_STRING=$("$GCC64_DIR"/bin/aarch64-elf-gcc --version | head -n 1)
 		PATH=$GCC64_DIR/bin/:$GCC32_DIR/bin/:/usr/bin:$PATH
-	fi
-
-	if [ $LTO = "1" ];then
-		export LD=ld.lld
-        export LD_LIBRARY_PATH=$TC_DIR/lib
 	fi
 
 	export PATH KBUILD_COMPILER_STRING
@@ -177,8 +141,8 @@ exports() {
 
 # Function to replace defconfig versioning
 setversioning() {
-    # For staging branch
-    KERNELNAME="Lighthouse-$LINUXVER-raphael-v0.1-$DATE"
+    # For staging branchc
+    KERNELNAME="Test-$DATE"
     # Export our new localversion and zipnames
     export KERNELNAME
     export ZIPNAME="$KERNELNAME.zip"
@@ -205,7 +169,7 @@ build_kernel() {
 	fi
 
 	BUILD_START=$(date +"%s")
-
+	
 	if [ $COMPILER = "clang" ]
 	then
 		make -j"$PROCS" O=out \
@@ -215,7 +179,9 @@ build_kernel() {
 				AR=llvm-ar \
 				OBJDUMP=llvm-objdump \
 				STRIP=llvm-strip
-	elif [ $COMPILER = "gcc" ]
+	fi
+
+	if [ $COMPILER = "gcc" ]
 	then
 		make -j"$PROCS" O=out \
 				CROSS_COMPILE_ARM32=arm-eabi- \
@@ -223,35 +189,18 @@ build_kernel() {
 				AR=aarch64-elf-ar \
 				OBJDUMP=aarch64-elf-objdump \
 				STRIP=aarch64-elf-strip
-	elif [ $COMPILER = "clangxgcc" ]
-	then
-		make -j"$PROCS"  O=out \
-					CC=clang \
-					CROSS_COMPILE=aarch64-linux-gnu- \
-					CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
-					AR=llvm-ar \
-					AS=llvm-as \
-					NM=llvm-nm \
-					STRIP=llvm-strip \
-					OBJCOPY=llvm-objcopy \
-					OBJDUMP=llvm-objdump \
-					OBJSIZE=llvm-size \
-					READELF=llvm-readelf \
-					HOSTCC=clang \
-					HOSTCXX=clang++ \
-					HOSTAR=llvm-ar \
-					CLANG_TRIPLE=aarch64-linux-gnu-
 	fi
 
 	BUILD_END=$(date +"%s")
 	DIFF=$((BUILD_END - BUILD_START))
 
-	if [ -f "$KERNEL_DIR"/out/arch/arm64/boot/Image.gz-dtb ]
+	if [ -f "$KERNEL_DIR"/out/arch/arm64/boot/Image.gz-dtb ] 
 	then
 		msg "|| Kernel successfully compiled ||"
 	elif ! [ -f $KERNEL_DIR/out/arch/arm64/boot/Image.gz-dtb ]
 	then
 		echo -e "Kernel compilation failed, See buildlog to fix errors"
+		exit 1
 	fi
 
 	if [ $BUILD_DTBO = 1 ]
@@ -273,32 +222,10 @@ gen_zip() {
 	fi
 	cd AnyKernel3 || exit
         cp -af anykernel-real.sh anykernel.sh
-	sed -i "s/kernel.string=.*/kernel.string=CannedShroud-R/g" anykernel.sh
-	sed -i "s/kernel.for=.*/kernel.for=P-WIFI/g" anykernel.sh
-	sed -i "s/kernel.compiler=.*/kernel.compiler=EVA-GCC/g" anykernel.sh
-	sed -i "s/kernel.made=.*/kernel.made=@CannedShroud/g" anykernel.sh
-	sed -i "s/kernel.version=.*/kernel.version=$LINUXVER/g" anykernel.sh
-	sed -i "s/message.word=.*/message.word=Appreciate your efforts for choosing CannedShroud kernel./g" anykernel.sh
-	sed -i "s/build.date=.*/build.date=$DATE/g" anykernel.sh
-
-
 	zip -r9 "$ZIPNAME" * -x .git README.md anykernel-real.sh .gitignore *.zip
 
 	## Prepare a final zip variable
 	ZIP_FINAL="$ZIPNAME"
-
-
-	if [ $SIGN = 1 ]
-	then
-		## Sign the zip before sending it to telegram
-		if [ "$PTTG" = 1 ]
- 		then
- 			msg "|| Signing Zip ||"
-			tg_post_msg "<code>Signing Zip file with AOSP keys..</code>"
- 		fi
-		java -jar zipsigner-3.0.jar "$KERNELNAME".zip "$KERNELNAME"-signed.zip
-		ZIP_FINAL="$ZIP_FINAL-signed"
-	fi
 
 	cd ..
 }
