@@ -137,3 +137,5 @@ logs/
 scripts/ufdt/
 AnyKernel3/
 clang/
+gcc32/
+gcc64/
