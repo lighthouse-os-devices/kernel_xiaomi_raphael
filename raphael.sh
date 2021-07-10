@@ -53,7 +53,7 @@ MANUFACTURERINFO="Xiaomi"
 COMPILER=gcc
 
 # Kernel is LTO
-LTO=1
+LTO=0
 
 # Clean source prior building. 1 is NO(default) | 0 is YES
 INCREMENTAL=1
@@ -102,14 +102,14 @@ DATE=$(TZ=Asia/Kolkata date +"%Y%m%d")
 	elif [ $COMPILER = "gcc" ]
 	then
 		msg "|| Cloning GCC ||"
-		git clone https://github.com/mvaisakh/gcc-arm64.git gcc64 --depth=1
-        git clone https://github.com/mvaisakh/gcc-arm.git gcc32 --depth=1
+		git clone https://github.com/mvaisakh/gcc-arm64.git gcc64 --depth=1 -b gcc-new
+        git clone https://github.com/mvaisakh/gcc-arm.git gcc32 --depth=1 -b gcc-new
 		GCC64_DIR=$KERNEL_DIR/gcc64
 		GCC32_DIR=$KERNEL_DIR/gcc32
 	fi
 
 	msg "|| Cloning Anykernel ||"
-        git clone https://github.com/CannedShroud/AnyKernel3.git -b main
+        git clone https://github.com/CannedShroud/AnyKernel3.git -b raphael
 
 	if [ $BUILD_DTBO = 1 ]
 	then
@@ -150,7 +150,7 @@ exports() {
 # Function to replace defconfig versioning
 setversioning() {
     # For staging branchc
-    KERNELNAME="Lighthouse-smooth-$DATE"
+    KERNELNAME="ProjectLighthouseKernel-$DATE"
     # Export our new localversion and zipnames
     export KERNELNAME
     export ZIPNAME="$KERNELNAME.zip"
