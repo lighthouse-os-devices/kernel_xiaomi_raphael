@@ -158,7 +158,7 @@ static bool sugov_up_down_rate_limit(struct sugov_policy *sg_policy, u64 time,
 static inline bool use_pelt(void)
 {
 #ifdef CONFIG_SCHED_WALT
-	return (!sysctl_sched_use_walt_cpu_util || walt_disabled);
+	return false;
 #else
 	return true;
 #endif
@@ -178,9 +178,6 @@ static void sugov_track_cycles(struct sugov_policy *sg_policy,
 {
 	u64 delta_ns, cycles;
 
-	if (unlikely(!sysctl_sched_use_walt_cpu_util))
-		return;
-
 	/* Track cycles in current window */
 	delta_ns = upto - sg_policy->last_cyc_update_time;
 	delta_ns *= prev_freq;
@@ -195,9 +192,6 @@ static void sugov_calc_avg_cap(struct sugov_policy *sg_policy, u64 curr_ws,
 {
 	u64 last_ws = sg_policy->last_ws;
 	unsigned int avg_freq;
-
-	if (unlikely(!sysctl_sched_use_walt_cpu_util))
-		return;
 
 	BUG_ON(curr_ws < last_ws);
 	if (curr_ws <= last_ws)
@@ -381,9 +375,6 @@ static void sugov_walt_adjust(struct sugov_cpu *sg_cpu, unsigned long *util,
 	unsigned long nl = sg_cpu->walt_load.nl;
 	unsigned long cpu_util = sg_cpu->util;
 	bool is_hiload;
-
-	if (unlikely(!sysctl_sched_use_walt_cpu_util))
-		return;
 
 	is_hiload = (cpu_util >= mult_frac(sg_policy->avg_cap,
 					   sg_policy->tunables->hispeed_load,
