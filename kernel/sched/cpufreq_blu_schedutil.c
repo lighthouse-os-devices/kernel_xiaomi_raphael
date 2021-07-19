@@ -178,6 +178,9 @@ static void sugov_track_cycles(struct sugov_policy *sg_policy,
 {
 	u64 delta_ns, cycles;
 
+	if (use_pelt())
+		return;
+
 	/* Track cycles in current window */
 	delta_ns = upto - sg_policy->last_cyc_update_time;
 	delta_ns *= prev_freq;
@@ -192,6 +195,9 @@ static void sugov_calc_avg_cap(struct sugov_policy *sg_policy, u64 curr_ws,
 {
 	u64 last_ws = sg_policy->last_ws;
 	unsigned int avg_freq;
+
+	if (use_pelt())
+		return;
 
 	BUG_ON(curr_ws < last_ws);
 	if (curr_ws <= last_ws)
@@ -375,6 +381,9 @@ static void sugov_walt_adjust(struct sugov_cpu *sg_cpu, unsigned long *util,
 	unsigned long nl = sg_cpu->walt_load.nl;
 	unsigned long cpu_util = sg_cpu->util;
 	bool is_hiload;
+
+	if (use_pelt())
+		return;
 
 	is_hiload = (cpu_util >= mult_frac(sg_policy->avg_cap,
 					   sg_policy->tunables->hispeed_load,
