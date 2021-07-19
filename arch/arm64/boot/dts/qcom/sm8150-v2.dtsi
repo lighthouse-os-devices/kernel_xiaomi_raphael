@@ -481,30 +481,13 @@
 	};
 };
 
-// &cpus {
-// 	cpu@0 {
-// 		efficiency = <488>;
-// 		capacity-dmips-mhz = <488>;
-// 	};
-
-// 	cpu@4 {
-// 		efficiency = <1024>;
-// 		capacity-dmips-mhz = <1024>;
-// 	};
-
-// 	cpu@7 {
-// 		efficiency = <1024>;
-// 		capacity-dmips-mhz = <1024>;
-// 	};
-// 	};
-
 &energy_costs {
 		CPU_COST_0: core-cost0 {
 		busy-cost-data = <
 			   52   11
 			   69   16
 			   86   3
-			   99    5
+			   99   5
 			  115   15
 			  132   16
 			  145   28
