@@ -84,6 +84,7 @@ static inline int tavil_mbhc_get_impedance(struct wcd934x_mbhc *wcd934x_mbhc,
 	return -EINVAL;
 }
 
+
 static inline int tavil_mb_pull_down(struct snd_soc_codec *codec, bool active,
 			int value)
 {
