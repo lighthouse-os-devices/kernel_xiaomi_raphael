@@ -7653,6 +7653,8 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
 	int err;
 	u8 resp = 0xF, lun;
 	unsigned long flags;
+	struct ufshcd_lrb *lrbp;
+	unsigned int tag;
 
 	host = cmd->device->host;
 	hba = shost_priv(host);
