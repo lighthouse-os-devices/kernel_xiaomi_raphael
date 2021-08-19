@@ -2752,10 +2752,6 @@ static int wp_page_copy(struct vm_fault *vmf)
 				vmf->address);
 		if (!new_page)
 			goto out;
-		cow_user_page(new_page, old_page, vmf->address, vma);
-
-		if (!new_page)
-			goto oom;
 
 		if (!cow_user_page(new_page, old_page, vmf)) {
 			/*
