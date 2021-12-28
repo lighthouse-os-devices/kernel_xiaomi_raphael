@@ -10,7 +10,7 @@ int goodix_start_cfg_bin(struct goodix_ts_core *ts_core)
 {
 	struct task_struct *cfg_bin_thrd;
 	/* create and run update thread */
-	ts_err("enter::%s\n",__func__);
+	ts_err("enter::%s\n", __func__);
 	cfg_bin_thrd = kthread_run(goodix_cfg_bin_proc, ts_core, "goodix-parse_cfg_bin");
 	if (IS_ERR_OR_NULL(cfg_bin_thrd)) {
 		ts_err("Failed to create update thread:%ld", PTR_ERR(cfg_bin_thrd));
@@ -43,6 +43,7 @@ int goodix_parse_cfg_bin(struct goodix_cfg_bin *cfg_bin)
 	u8 checksum;
 	int i, r;
 	u16 offset1, offset2;
+
 	if (!cfg_bin->bin_data || cfg_bin->bin_data_len == 0) {
 		ts_err("NO cfg_bin data, cfg_bin data length:%d", cfg_bin->bin_data_len);
 		r = -EINVAL;
@@ -169,6 +170,7 @@ int goodix_cfg_bin_proc(void *data)
 		u8 *tp_maker;
 #endif
 	struct goodix_cfg_bin *cfg_bin = kzalloc(sizeof(struct goodix_cfg_bin), GFP_KERNEL);
+
 	if (!cfg_bin) {
 		ts_err("Failed to alloc memory for cfg_bin");
 		r = -ENOMEM;
@@ -250,9 +252,9 @@ int goodix_cfg_bin_proc(void *data)
 	/*complete_all(&goodix_modules.core_comp);*/
 
 #ifdef CONFIG_DRM
-	core_data->fb_notifier.notifier_call = goodix_ts_fb_notifier_callback;
-	if (msm_drm_register_client(&core_data->fb_notifier))
-		ts_err("Failed to register fb notifier client:%d", r);
+	core_data->msm_drm_notifier.notifier_call = goodix_ts_msm_drm_notifier_callback;
+	if (msm_drm_register_client(&core_data->msm_drm_notifier))
+		ts_err("Failed to register drm notifier client:%d", r);
 #elif defined(CONFIG_HAS_EARLYSUSPEND)
 	core_data->early_suspend.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN + 1;
 	core_data->early_suspend.resume = goodix_ts_lateresume;
@@ -301,6 +303,7 @@ int goodix_get_reg_and_cfg(struct goodix_ts_device *ts_dev, struct goodix_cfg_bi
 	u8 temp_fw_mask[TS_CFG_BLOCK_FW_MASK_LEN] = {0x00};
 	u8 temp_pid[TS_CFG_BLOCK_PID_LEN] = {0x00};
 	int r = -EINVAL;
+
 	normal_pkg = NULL;
 	high_sense_pkg = NULL;
 

@@ -3,7 +3,6 @@
  * Core layer of touchdriver architecture.
  *
  * Copyright (C) 2015 - 2016 Goodix, Inc.
- * Copyright (C) 2019 XiaoMi, Inc.
  * Authors:  Yulong Cai <caiyulong@goodix.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -92,10 +91,6 @@
 #define GTP_GAME_CMD_ADD  0x6F68
 #define GTP_GAME_CMD      0x0E
 #define GTP_EXIT_GAME_CMD 0x0F
-
-#define CONFIG_TOUCHSCREEN_GOODIX_DEBUG_FS
-
-#define CONFIG_GOODIX_HWINFO
 
 /*
  * struct goodix_module - external modules container
@@ -393,7 +388,7 @@ struct goodix_ts_hw_ops {
 /*
  * struct goodix_ts_esd - esd protector structure
  * @esd_work: esd delayed work
- * @esd_on: true - turn on esd protection, false - turn
+ * @esd_on: 1 - turn on esd protection, 0 - turn
  *  off esd protection
  * @esd_mutex: protect @esd_on flag
  */
@@ -402,7 +397,7 @@ struct goodix_ts_esd {
 	struct mutex esd_mutex;
 	struct notifier_block esd_notifier;
 	struct goodix_ts_core *ts_core;
-	bool esd_on;
+	atomic_t esd_on;
 };
 
 /*
@@ -422,7 +417,7 @@ struct goodix_ts_esd {
  * @hw_err: indicate that hw_ops->init() failed
  * @ts_notifier: generic notifier
  * @ts_esd: esd protector structure
- * @fb_notifier: framebuffer notifier
+ * @msm_drm_notifier: framebuffer notifier
  * @early_suspend: early suspend
  */
 struct goodix_ts_core {
@@ -462,7 +457,7 @@ struct goodix_ts_core {
 	struct proc_dir_entry *tp_fw_version_proc;
 	struct proc_dir_entry *tp_lockdown_info_proc;
 #ifdef CONFIG_DRM
-	struct notifier_block fb_notifier;
+	struct notifier_block msm_drm_notifier;
 #elif defined(CONFIG_HAS_EARLYSUSPEND)
 	struct early_suspend early_suspend;
 #endif
@@ -623,6 +618,7 @@ static inline u8 checksum_u8(u8 *data, u32 size)
 {
 	u8 checksum = 0;
 	u32 i;
+
 	for (i = 0; i < size; i++)
 		checksum += data[i];
 	return checksum;
@@ -642,6 +638,7 @@ static inline u16 checksum_be16(u8 *data, u32 size)
 {
 	u16 checksum = 0;
 	u32 i;
+
 	for (i = 0; i < size; i += 2)
 		checksum += be16_to_cpup((__be16 *)(data + i));
 	return checksum;
@@ -651,6 +648,7 @@ static inline u32 checksum_le32(u8 *data, u32 size)
 {
 	u32 checksum = 0;
 	u32 i;
+
 	for (i = 0; i < size; i += 4)
 		checksum += le32_to_cpup((__le32 *)(data + i));
 	return checksum;
@@ -660,6 +658,7 @@ static inline u32 checksum_be32(u8 *data, u32 size)
 {
 	u32 checksum = 0;
 	u32 i;
+
 	for (i = 0; i < size; i += 4)
 		checksum += be32_to_cpup((__be32 *)(data + i));
 	return checksum;
@@ -702,13 +701,12 @@ static inline u32 checksum_be32(u8 *data, u32 size)
 #define ECHKSUM					1002
 #define EMEMCMP					1003
 
-#define CONFIG_GOODIX_DEBUG
 /* log macro */
-#define ts_info(fmt, arg...)	pr_info("[GTP9886-INF][%s:%d] "fmt"\n", __func__, __LINE__, ##arg)
-#define	ts_err(fmt, arg...)		pr_err("[GTP9886-ERR][%s:%d] "fmt"\n", __func__, __LINE__, ##arg)
+#define ts_info(fmt, arg...)	((void)0)
+#define	ts_err(fmt, arg...)	((void)0)
 #define boot_log(fmt, arg...)	g_info(fmt, ##arg)
 #ifdef CONFIG_GOODIX_DEBUG
-#define ts_debug(fmt, arg...)	pr_info("[GTP9886-DBG][%s:%d] "fmt"\n", __func__, __LINE__, ##arg)
+#define ts_debug(fmt, arg...)	((void)0)
 #else
 #define ts_debug(fmt, arg...)	do {} while (0)
 #endif
@@ -743,7 +741,7 @@ int goodix_ts_irq_enable(struct goodix_ts_core *core_data, bool enable);
 struct kobj_type *goodix_get_default_ktype(void);
 
 /**
- * fb_notifier_call_chain - notify clients of fb_events
+ * msm_drm_notifier_call_chain - notify clients of fb_events
  * see enum ts_notify_event in goodix_ts_core.h
  */
 int goodix_ts_blocking_notify(enum ts_notify_event evt, void *v);
@@ -770,7 +768,7 @@ int goodix_ts_esd_init(struct goodix_ts_core *core);
 int goodix_ts_register_notifier(struct notifier_block *nb);
 int goodix_generic_noti_callback(struct notifier_block *self,
 			unsigned long action, void *data);
-int goodix_ts_fb_notifier_callback(struct notifier_block *self,
+int goodix_ts_msm_drm_notifier_callback(struct notifier_block *self,
 			unsigned long event, void *data);
 extern void goodix_msg_printf(const char *fmt, ...);
 int goodix_gesture_enable(bool enable);
